@@ -1,0 +1,16 @@
+services:
+    postgres:
+        image: postgres
+        container_name: notebooklm_postgres
+        environment:
+            POSTGRES_USER: notebook_lm
+            POSTGRES_PASSWORD: notelm_postgres_password
+            POSTGRES_DB: notelm_postgres_db
+        ports:
+            - '5432:5432'
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+        restart: unless-stopped
+
+volumes:
+    pgdata:
