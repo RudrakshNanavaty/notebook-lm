@@ -6,7 +6,6 @@ const ragChain = new RAGChain();
 export async function POST(request: NextRequest) {
   try {
     const { assistantId } = await request.json();
-
     if (!assistantId) {
       return NextResponse.json(
         { error: 'Assistant ID is required' },

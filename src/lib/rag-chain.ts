@@ -2,14 +2,12 @@ import { PromptTemplate } from '@langchain/core/prompts';
 import { RunnableSequence } from '@langchain/core/runnables';
 import { ChatOpenAI } from '@langchain/openai';
 import { prisma } from './db';
-import { DocumentProcessor } from './document-processor';
+import { documentProcessor, DocumentProcessor } from './document-processor';
 
 export class RAGChain {
-  private documentProcessor: DocumentProcessor;
   private llm: ChatOpenAI;
 
   constructor() {
-    this.documentProcessor = new DocumentProcessor();
     this.llm = new ChatOpenAI({
       modelName: 'gpt-5-nano', // https://platform.openai.com/docs/pricing
       openAIApiKey: process.env.OPENAI_API_KEY!,
@@ -32,7 +30,7 @@ export class RAGChain {
       }
 
       // Retrieve relevant documents
-      const relevantDocs = await this.documentProcessor.queryDocuments(
+      const relevantDocs = await documentProcessor.queryDocuments(
         question,
         assistantId
       );

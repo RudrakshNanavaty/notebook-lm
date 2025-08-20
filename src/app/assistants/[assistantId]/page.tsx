@@ -1,3 +1,5 @@
+'use client';
+
 import { AppSidebar } from '@/components/app-sidebar';
 import {
 	Breadcrumb,
@@ -14,7 +16,14 @@ import {
 	SidebarTrigger
 } from '@/components/ui/sidebar';
 
-export default function Page() {
+interface PageProps {
+	params: Promise<{
+		assistantId: string;
+	}>;
+}
+
+export default async function AssistantPage({ params }: PageProps) {
+	const { assistantId } = await params;
 	return (
 		<SidebarProvider>
 			<AppSidebar />
@@ -25,24 +34,27 @@ export default function Page() {
 					<Breadcrumb>
 						<BreadcrumbList>
 							<BreadcrumbItem className='hidden md:block'>
-								<BreadcrumbLink href='#'>
-									Building Your Application
-								</BreadcrumbLink>
+								<BreadcrumbLink href='/'>Home</BreadcrumbLink>
 							</BreadcrumbItem>
 							<BreadcrumbSeparator className='hidden md:block' />
 							<BreadcrumbItem>
-								<BreadcrumbPage>Data Fetching</BreadcrumbPage>
+								<BreadcrumbPage>
+									Assistant {assistantId}
+								</BreadcrumbPage>
 							</BreadcrumbItem>
 						</BreadcrumbList>
 					</Breadcrumb>
 				</header>
 				<div className='flex flex-1 flex-col gap-4 p-4'>
-					{Array.from({ length: 24 }).map((_, index) => (
-						<div
-							key={index}
-							className='bg-muted/50 aspect-video h-12 w-full rounded-lg'
-						/>
-					))}
+					<div className='bg-muted/50 rounded-lg p-6'>
+						<h1 className='text-2xl font-bold mb-4'>
+							Assistant {assistantId}
+						</h1>
+						<p className='text-muted-foreground'>
+							Select a chat from the sidebar or create a new one
+							to start chatting with this assistant.
+						</p>
+					</div>
 				</div>
 			</SidebarInset>
 		</SidebarProvider>
