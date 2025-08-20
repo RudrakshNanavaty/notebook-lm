@@ -1,20 +1,20 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { RAGChain } from '@/lib/rag-chain';
+import { NextRequest, NextResponse } from 'next/server';
 
 const ragChain = new RAGChain();
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, assistantType, sessionId } = await request.json();
+    const { message, assistantId, sessionId } = await request.json();
 
-    if (!message || !assistantType) {
+    if (!message || !assistantId) {
       return NextResponse.json(
-        { error: 'Message and assistant type required' },
+        { error: 'Message and assistant ID are required' },
         { status: 400 }
       );
     }
 
-    const result = await ragChain.queryRAG(message, assistantType, sessionId);
+    const result = await ragChain.queryRAG(message, assistantId, sessionId);
 
     return NextResponse.json({
       success: true,

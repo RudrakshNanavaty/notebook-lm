@@ -1,23 +1,25 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { DocumentProcessor } from '@/lib/document-processor';
+import { NextRequest, NextResponse } from 'next/server';
 
 const documentProcessor = new DocumentProcessor();
 
 export async function POST(request: NextRequest) {
   try {
-    const { text, assistantType, fileName } = await request.json();
+    const { text, assistantId, fileName, sourceUrl } = await request.json();
 
-    if (!text || !assistantType) {
+    if (!text || !assistantId) {
       return NextResponse.json(
-        { error: 'Text and assistant type required' },
+        { error: 'Text and assistant ID are required' },
         { status: 400 }
       );
     }
 
     const result = await documentProcessor.processDocument(
       text,
-      assistantType,
-      fileName || 'pasted-text'
+      assistantId,
+      fileName || 'pasted-text',
+      sourceUrl ? 'website' : 'pdf',
+      sourceUrl
     );
 
     return NextResponse.json({

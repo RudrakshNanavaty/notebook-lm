@@ -32,3 +32,25 @@ export async function GET() {
     );
   }
 }
+
+export async function POST(request: Request) {
+  const { name, description, systemPrompt } = await request.json();
+
+  try {
+    const assistant = await prisma.assistant.create({
+      data: {
+        name,
+        description,
+        systemPrompt
+      }
+    });
+
+    return NextResponse.json({ assistant });
+  } catch (error) {
+    console.error('Failed to create assistant:', error);
+    return NextResponse.json(
+      { error: 'Failed to create assistant' },
+      { status: 500 }
+    );
+  }
+}

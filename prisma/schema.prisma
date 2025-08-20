@@ -16,7 +16,6 @@ datasource db {
 model Assistant {
   id          String @id @default(cuid())
   name        String
-  type        String @unique // 'legal', 'tax', 'general'
   description String
   systemPrompt String
   createdAt   DateTime @default(now())
@@ -30,10 +29,14 @@ model Assistant {
 
 model Document {
   id           String @id @default(cuid())
-  fileName     String
+  fileName     String    // For PDFs: original filename, For websites: page title or URL
+  sourceType   String    // 'pdf' or 'website'
+  sourceUrl    String?   // For websites: the URL, For PDFs: null
+  mimeType     String?   // MIME type of the file
+  fileSize     Int?      // File size in bytes
   originalText String
   chunks       Int
-  status       String // 'processing', 'completed', 'failed'
+  status       String    // 'processing', 'completed', 'failed'
   assistantId  String
   uploadedAt   DateTime @default(now())
 

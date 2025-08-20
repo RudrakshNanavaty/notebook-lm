@@ -11,36 +11,35 @@ export class RAGChain {
   constructor() {
     this.documentProcessor = new DocumentProcessor();
     this.llm = new ChatOpenAI({
-      modelName: 'gpt-3.5-turbo',
-      temperature: 0.7,
+      modelName: 'gpt-5-nano', // https://platform.openai.com/docs/pricing
       openAIApiKey: process.env.OPENAI_API_KEY!,
     });
   }
 
   async queryRAG(
     question: string,
-    assistantType: string,
+    assistantId: string,
     sessionId?: string
   ): Promise<{ response: string; retrievedDocs: any[] }> {
     try {
       // Get assistant info
       const assistant = await prisma.assistant.findUnique({
-        where: { type: assistantType }
+        where: { id: assistantId }
       });
 
       if (!assistant) {
-        throw new Error(`Assistant type ${assistantType} not found`);
+        throw new Error(`Assistant with id ${assistantId} not found`);
       }
 
       // Retrieve relevant documents
       const relevantDocs = await this.documentProcessor.queryDocuments(
         question,
-        assistantType
+        assistantId
       );
 
       if (relevantDocs.length === 0) {
         return {
-          response: `I don't have specific information about that in my ${assistantType} knowledge base. Please upload relevant documents first.`,
+          response: `I don't have specific information about that in my knowledge base. Please upload relevant documents first.`,
           retrievedDocs: []
         };
       }
@@ -55,9 +54,9 @@ export class RAGChain {
         ${assistant.systemPrompt}
 
         Context from knowledge base:
-        {context}
+        ${context}
 
-        Question: {question}
+        Question: ${question}
 
         Answer based on the provided context. If the context doesn't contain relevant information, say so clearly.
       `);
@@ -115,13 +114,13 @@ export class RAGChain {
     });
   }
 
-  async createChatSession(assistantType: string): Promise<string> {
+  async createChatSession(assistantId: string): Promise<string> {
     const assistant = await prisma.assistant.findUnique({
-      where: { type: assistantType }
+      where: { id: assistantId }
     });
 
     if (!assistant) {
-      throw new Error(`Assistant type ${assistantType} not found`);
+      throw new Error(`Assistant with id ${assistantId} not found`);
     }
 
     const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;

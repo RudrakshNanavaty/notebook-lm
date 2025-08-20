@@ -1,42 +1,44 @@
-import { DocumentProcessor } from '@/lib/document-processor';
+import { documentProcessor } from '@/lib/document-processor';
 import { WebPDFLoader } from '@langchain/community/document_loaders/web/pdf';
 import { NextRequest, NextResponse } from 'next/server';
-
-const documentProcessor = new DocumentProcessor();
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
-    const assistantType = formData.get('assistantType') as string;
+    const assistantId = formData.get('assistantId') as string;
 
-    if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
-    }
+    // File size limit: 2MB
+    const MAX_SIZE = 2 * 1024 * 1024; // 2MB in bytes
+    const errors = [
+      { condition: !file, message: 'No file provided', status: 400 },
+      { condition: file && file.size > MAX_SIZE, message: 'File size exceeds 2MB limit', status: 400 },
+      { condition: file && file.type !== 'application/pdf', message: 'Only PDF files are accepted', status: 400 },
+      { condition: !assistantId, message: 'Assistant ID required', status: 400 }
+    ];
 
-    if (!assistantType) {
-      return NextResponse.json({ error: 'Assistant type required' }, { status: 400 });
+    const foundError = errors.find(e => e.condition);
+    if (foundError) {
+      return NextResponse.json({ error: foundError.message }, { status: foundError.status });
     }
 
     let text: string;
 
-    if (file.type === 'application/pdf') {
-      // Use WebPDFLoader - much cleaner!
-      const loader = new WebPDFLoader(file, {
-        splitPages: false // Get all content as one document
-      });
+    const loader = new WebPDFLoader(file, {
+      splitPages: false // Get all content as one document
+    });
 
-      const docs = await loader.load();
-      text = docs.map(doc => doc.pageContent).join('\n\n');
-
-    } else {
-      text = await file.text();
-    }
+    const docs = await loader.load();
+    text = docs.map(doc => doc.pageContent).join('\n\n');
 
     const result = await documentProcessor.processDocument(
       text,
-      assistantType,
-      file.name
+      assistantId,
+      file.name,
+      'pdf',
+      undefined,
+      file.type,
+      file.size
     );
 
     return NextResponse.json({

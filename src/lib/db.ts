@@ -12,7 +12,7 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 export async function initializeAssistants() {
   const assistants = [
     {
-      type: 'legal',
+      id: 'legal-assistant-001',
       name: 'Legal Assistant',
       description: 'Indian Constitution, Penal Code, and Legal Documents',
       systemPrompt: `You are a legal assistant specializing in Indian law. Use the provided context from legal documents to answer questions accurately. Always cite relevant sections when possible. Focus on:
@@ -23,7 +23,7 @@ export async function initializeAssistants() {
 Always provide legal information for educational purposes only and remind users to consult qualified legal professionals for specific legal advice.`
     },
     {
-      type: 'tax',
+      id: 'tax-assistant-001',
       name: 'Tax Assistant',
       description: 'Tax Codes, Policy Documents, and Compliance Guides',
       systemPrompt: `You are a tax assistant with expertise in Indian taxation. Use the provided context from tax codes and policies to provide accurate tax guidance. Focus on:
@@ -34,7 +34,7 @@ Always provide legal information for educational purposes only and remind users 
 Always remind users that tax advice should be verified with qualified tax professionals for specific situations.`
     },
     {
-      type: 'general',
+      id: 'general-assistant-001',
       name: 'General Assistant',
       description: 'General Knowledge Base',
       systemPrompt: `You are a helpful general assistant. Use the provided context to answer questions accurately and helpfully across various topics.`
@@ -43,8 +43,12 @@ Always remind users that tax advice should be verified with qualified tax profes
 
   for (const assistant of assistants) {
     await prisma.assistant.upsert({
-      where: { type: assistant.type },
-      update: assistant,
+      where: { id: assistant.id },
+      update: {
+        name: assistant.name,
+        description: assistant.description,
+        systemPrompt: assistant.systemPrompt
+      },
       create: assistant,
     });
   }

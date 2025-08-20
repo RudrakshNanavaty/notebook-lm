@@ -1,20 +1,20 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { RAGChain } from '@/lib/rag-chain';
+import { NextRequest, NextResponse } from 'next/server';
 
 const ragChain = new RAGChain();
 
 export async function POST(request: NextRequest) {
   try {
-    const { assistantType } = await request.json();
+    const { assistantId } = await request.json();
 
-    if (!assistantType) {
+    if (!assistantId) {
       return NextResponse.json(
-        { error: 'Assistant type required' },
+        { error: 'Assistant ID is required' },
         { status: 400 }
       );
     }
 
-    const sessionId = await ragChain.createChatSession(assistantType);
+    const sessionId = await ragChain.createChatSession(assistantId);
 
     return NextResponse.json({
       success: true,
