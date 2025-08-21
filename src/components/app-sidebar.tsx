@@ -158,7 +158,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	return (
 		<Sidebar {...props}>
 			<SidebarHeader>
-				<VersionSwitcher versions={['1.0.0']} defaultVersion='1.0.0' />
+				{/* <VersionSwitcher versions={['1.0.0']} defaultVersion='1.0.0' /> */}
 				<SearchForm />
 			</SidebarHeader>
 			<SidebarContent className='gap-0'>
