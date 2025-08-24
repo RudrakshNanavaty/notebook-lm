@@ -1,10 +1,8 @@
-'use client';
-
+// app/assistants/[assistantId]/loading.tsx
 import { AppSidebar } from '@/components/app-sidebar';
 import {
 	Breadcrumb,
 	BreadcrumbItem,
-	BreadcrumbLink,
 	BreadcrumbList,
 	BreadcrumbPage,
 	BreadcrumbSeparator
@@ -15,15 +13,9 @@ import {
 	SidebarProvider,
 	SidebarTrigger
 } from '@/components/ui/sidebar';
+import { Skeleton } from '@/components/ui/skeleton';
 
-interface PageProps {
-	params: Promise<{
-		assistantId: string;
-	}>;
-}
-
-export default async function AssistantPage({ params }: PageProps) {
-	const { assistantId } = await params;
+export default function Loading() {
 	return (
 		<SidebarProvider>
 			<AppSidebar />
@@ -34,12 +26,12 @@ export default async function AssistantPage({ params }: PageProps) {
 					<Breadcrumb>
 						<BreadcrumbList>
 							<BreadcrumbItem className='hidden md:block'>
-								<BreadcrumbLink href='/'>Home</BreadcrumbLink>
+								<Skeleton className='h-4 w-12' />
 							</BreadcrumbItem>
 							<BreadcrumbSeparator className='hidden md:block' />
 							<BreadcrumbItem>
 								<BreadcrumbPage>
-									Assistant {assistantId}
+									<Skeleton className='h-4 w-24' />
 								</BreadcrumbPage>
 							</BreadcrumbItem>
 						</BreadcrumbList>
@@ -47,13 +39,9 @@ export default async function AssistantPage({ params }: PageProps) {
 				</header>
 				<div className='flex flex-1 flex-col gap-4 p-4'>
 					<div className='bg-muted/50 rounded-lg p-6'>
-						<h1 className='text-2xl font-bold mb-4'>
-							Assistant {assistantId}
-						</h1>
-						<p className='text-muted-foreground'>
-							Select a chat from the sidebar or create a new one
-							to start chatting with this assistant.
-						</p>
+						<Skeleton className='h-8 w-48 mb-4' />
+						<Skeleton className='h-4 w-full mb-2' />
+						<Skeleton className='h-4 w-3/4' />
 					</div>
 				</div>
 			</SidebarInset>

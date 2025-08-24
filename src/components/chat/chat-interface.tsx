@@ -7,9 +7,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { Send, Square } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import rehypeHighlight from 'rehype-highlight';
+import remarkGfm from 'remark-gfm';
 
 interface Message {
 	id: string;
@@ -24,13 +28,15 @@ interface ChatInterfaceProps {
 	sessionId: string;
 	assistantName?: string;
 	initialMessages?: Message[];
+	isLoading?: boolean;
 }
 
 export function ChatInterface({
 	assistantId,
 	sessionId,
 	assistantName = 'Assistant',
-	initialMessages = []
+	initialMessages = [],
+	isLoading = false
 }: ChatInterfaceProps) {
 	const [messages, setMessages] = useState<Message[]>(initialMessages);
 	const [inputValue, setInputValue] = useState('');
@@ -50,6 +56,78 @@ export function ChatInterface({
 			}
 		}
 	}, [messages]);
+
+	// Show loading state
+	if (isLoading) {
+		return (
+			<div className='flex flex-col h-full max-h-full'>
+				{/* Chat Header Skeleton */}
+				<div className='flex items-center justify-between p-4 border-b bg-background shrink-0'>
+					<div className='flex items-center gap-3'>
+						<Avatar className='h-8 w-8'>
+							<AvatarFallback>
+								<Skeleton className='h-full w-full rounded-full' />
+							</AvatarFallback>
+						</Avatar>
+						<div className='space-y-1'>
+							<Skeleton className='h-5 w-24' />
+							<Skeleton className='h-3 w-16' />
+						</div>
+					</div>
+				</div>
+
+				{/* Messages Area Skeleton */}
+				<ScrollArea className='flex-1 min-h-0 p-4'>
+					<div className='space-y-4'>
+						{Array.from({ length: 3 }).map((_, index) => (
+							<div
+								key={index}
+								className={cn(
+									'flex items-start space-x-2',
+									index % 2 === 0 &&
+										'flex-row-reverse space-x-reverse'
+								)}
+							>
+								<Avatar className='h-8 w-8'>
+									<AvatarFallback>
+										<Skeleton className='h-full w-full rounded-full' />
+									</AvatarFallback>
+								</Avatar>
+								<div
+									className={cn(
+										'flex flex-col',
+										index % 2 === 0
+											? 'items-end'
+											: 'items-start'
+									)}
+								>
+									<Card className='max-w-xs sm:max-w-md lg:max-w-lg'>
+										<CardContent className='p-3'>
+											<div className='space-y-2'>
+												<Skeleton className='h-4 w-full' />
+												<Skeleton className='h-4 w-3/4' />
+											</div>
+										</CardContent>
+									</Card>
+									<Skeleton className='h-3 w-16 mt-1' />
+								</div>
+							</div>
+						))}
+					</div>
+				</ScrollArea>
+
+				{/* Input Area Skeleton */}
+				<div className='p-4 border-t bg-background shrink-0'>
+					<div className='flex space-x-2'>
+						<Skeleton className='h-10 flex-1' />
+						<Button disabled size='icon'>
+							<Send className='h-4 w-4' />
+						</Button>
+					</div>
+				</div>
+			</div>
+		);
+	}
 
 	const stopStreaming = () => {
 		if (abortController) {
@@ -216,7 +294,7 @@ export function ChatInterface({
 	return (
 		<div className='flex flex-col h-full max-h-full'>
 			{/* Chat Header */}
-			<div className='flex items-center justify-between p-4 border-b bg-background shrink-0'>
+			<div className='flex items-center justify-between pb-4 border-b bg-background shrink-0'>
 				<div className='flex items-center gap-3'>
 					<Avatar className='h-8 w-8'>
 						<AvatarImage src='/assistant-avatar.png' />
@@ -300,23 +378,30 @@ function MessageBubble({ message }: MessageBubbleProps) {
 
 			<div
 				className={cn(
-					'flex flex-col',
+					'flex flex-col max-w-full sm:max-w-4/5',
 					isUser ? 'items-end' : 'items-start'
 				)}
 			>
 				<Card
 					className={cn(
-						'max-w-xs sm:max-w-md lg:max-w-lg',
+						'max-w-full p-0',
 						isUser ? 'bg-primary text-primary-foreground' : ''
 					)}
 				>
-					<CardContent className='p-3'>
-						<p className='text-sm whitespace-pre-wrap'>
-							{message.content}
+					<CardContent
+						className={cn('text-sm', isUser ? 'px-4' : 'py-2')}
+					>
+						<div className='prose prose-sm dark:prose-invert max-w-none'>
+							<ReactMarkdown
+								remarkPlugins={[remarkGfm]}
+								rehypePlugins={[rehypeHighlight]}
+							>
+								{message.content}
+							</ReactMarkdown>
 							{message.isStreaming && (
 								<span className='inline-block w-2 h-4 ml-1 bg-current animate-pulse' />
 							)}
-						</p>
+						</div>
 					</CardContent>
 				</Card>
 

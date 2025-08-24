@@ -1,9 +1,9 @@
+// app/loading.tsx
 import { AppSidebar } from '@/components/app-sidebar';
 import { ChatLoadingSkeleton } from '@/components/chat/chat-skeleton';
 import {
 	Breadcrumb,
 	BreadcrumbItem,
-	BreadcrumbLink,
 	BreadcrumbList,
 	BreadcrumbPage,
 	BreadcrumbSeparator
@@ -14,31 +14,9 @@ import {
 	SidebarProvider,
 	SidebarTrigger
 } from '@/components/ui/sidebar';
-import { prisma } from '@/lib/db';
-import { redirect } from 'next/navigation';
+import { Skeleton } from '@/components/ui/skeleton';
 
-async function getLatestAssistant() {
-	try {
-		const assistant = await prisma.assistant.findFirst({
-			orderBy: {
-				createdAt: 'desc'
-			}
-		});
-		return assistant;
-	} catch (error) {
-		console.error('Error fetching latest assistant:', error);
-		return null;
-	}
-}
-
-export default async function Page() {
-	const latestAssistant = await getLatestAssistant();
-
-	if (latestAssistant) {
-		redirect(`/assistants/${latestAssistant.id}`);
-	}
-
-	// Fallback UI with loading skeleton if no assistant found
+export default function Loading() {
 	return (
 		<SidebarProvider>
 			<AppSidebar />
@@ -49,11 +27,13 @@ export default async function Page() {
 					<Breadcrumb>
 						<BreadcrumbList>
 							<BreadcrumbItem className='hidden md:block'>
-								<BreadcrumbLink href='/'>Home</BreadcrumbLink>
+								<Skeleton className='h-4 w-12' />
 							</BreadcrumbItem>
 							<BreadcrumbSeparator className='hidden md:block' />
 							<BreadcrumbItem>
-								<BreadcrumbPage>Loading...</BreadcrumbPage>
+								<BreadcrumbPage>
+									<Skeleton className='h-4 w-20' />
+								</BreadcrumbPage>
 							</BreadcrumbItem>
 						</BreadcrumbList>
 					</Breadcrumb>

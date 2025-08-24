@@ -1,9 +1,9 @@
+// app/assistants/[assistantId]/chat/[chatId]/loading.tsx
 import { AppSidebar } from '@/components/app-sidebar';
 import { ChatLoadingSkeleton } from '@/components/chat/chat-skeleton';
 import {
 	Breadcrumb,
 	BreadcrumbItem,
-	BreadcrumbLink,
 	BreadcrumbList,
 	BreadcrumbPage,
 	BreadcrumbSeparator
@@ -14,51 +14,37 @@ import {
 	SidebarProvider,
 	SidebarTrigger
 } from '@/components/ui/sidebar';
-import { prisma } from '@/lib/db';
-import { redirect } from 'next/navigation';
+import { Skeleton } from '@/components/ui/skeleton';
 
-async function getLatestAssistant() {
-	try {
-		const assistant = await prisma.assistant.findFirst({
-			orderBy: {
-				createdAt: 'desc'
-			}
-		});
-		return assistant;
-	} catch (error) {
-		console.error('Error fetching latest assistant:', error);
-		return null;
-	}
-}
-
-export default async function Page() {
-	const latestAssistant = await getLatestAssistant();
-
-	if (latestAssistant) {
-		redirect(`/assistants/${latestAssistant.id}`);
-	}
-
-	// Fallback UI with loading skeleton if no assistant found
+export default function Loading() {
 	return (
 		<SidebarProvider>
 			<AppSidebar />
-			<SidebarInset>
-				<header className='bg-background sticky top-0 flex h-16 shrink-0 items-center gap-2 border-b px-4'>
+			<SidebarInset className='flex flex-col h-screen'>
+				<header className='bg-background sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 border-b px-4'>
 					<SidebarTrigger className='-ml-1' />
 					<Separator orientation='vertical' className='mr-2 h-4' />
 					<Breadcrumb>
 						<BreadcrumbList>
 							<BreadcrumbItem className='hidden md:block'>
-								<BreadcrumbLink href='/'>Home</BreadcrumbLink>
+								<Skeleton className='h-4 w-12' />
+							</BreadcrumbItem>
+							<BreadcrumbSeparator className='hidden md:block' />
+							<BreadcrumbItem className='hidden md:block'>
+								<Skeleton className='h-4 w-20' />
 							</BreadcrumbItem>
 							<BreadcrumbSeparator className='hidden md:block' />
 							<BreadcrumbItem>
-								<BreadcrumbPage>Loading...</BreadcrumbPage>
+								<BreadcrumbPage>
+									<Skeleton className='h-4 w-16' />
+								</BreadcrumbPage>
 							</BreadcrumbItem>
 						</BreadcrumbList>
 					</Breadcrumb>
 				</header>
-				<div className='flex flex-1 flex-col'>
+
+				{/* Chat Loading Skeleton takes full remaining height */}
+				<div className='flex-1 min-h-0'>
 					<ChatLoadingSkeleton />
 				</div>
 			</SidebarInset>
